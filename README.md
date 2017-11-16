@@ -1,2 +1,2 @@
-# barChart
-[Dataviz] Implementation of a barChart using D3js
+# multChartImpl
+[Dataviz] Implementation of multiple Charts using D3js

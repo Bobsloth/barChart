@@ -16,3 +16,22 @@ div.bar {
     font-family: sans-serif;
     font-size: 11px;
 }
+
+
+
+  .legend {
+    font-size: 12px;
+  }
+  rect {
+    stroke-width: 2;
+  }
+
+.chart {
+display: inline-block;
+}
+
+
+.chart2 {
+display: inline-block;
+}
+

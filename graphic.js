@@ -1,9 +1,24 @@
 
-            	var dataset = [];
-		for (var i = 0; i < 25; i++) {           // Itère 25 fois
-		    var newNumber = Math.floor(Math.random() * 30);  // Nouveau nombre aléatoire (0-30)
-		    dataset.push(newNumber);             // Ajoute le nouveau nombre au tableau
+            	/*var dataset = [];
+		for (var i = 0; i < 10; i++) {          
+		    var newNumber = Math.floor(Math.random() * 30); 
+		    dataset.push(newNumber);             
+		}*/
+(function(d3) {
+		var dataset = [
+		  { id: 0, label: 'Jacques Chirac', count: 2 },
+		  { id: 12, label: 'Eric Cartman', count: 40 },
+		  { id: 23, label: 'Obi-Wan Kenobi', count: 30 },
+		  { id: 3, label: 'Dijkstra', count: 20 },
+		  { id: 14, label: 'Mr.Spock', count: 35 },
+		  { id: 8, label: 'Elrond', count: 30 },
+		  { id: 6, label: 'Luigi', count: 20 } 	
+		];
+		
+		for(var i = 0; i < dataset.length; i++){
+			dataset[i].id = i;
 		}
+
 		var widthSVG = 600;
 		var heightSVG = 100; 
 		var widthAxeX = widthSVG;
@@ -14,36 +29,42 @@
 		var widthBar = widthSVG / dataset.length - barPadding;
 		var heightBar = heightSVG; 
 				
-                     // Crée un tableau vide
+                   
+// AXIS X
 		
-var svgAxeX = d3.select("body")
-			.append("svg")
-			.attr("width", widthAxeX)
-			.attr("height", heightAxeX);
-var xScale = d3.scale.linear()
-                     .domain([0, dataset.length])
-                     .range([0, widthSVG-1]);
+		var svgAxeX = d3.select("#chart")
+					.append("svg")
+					.attr("width", widthAxeX)
+					.attr("height", heightAxeX);
+		var xScale = d3.scaleLinear()
+				     .domain([0, dataset.length])
+				     .range([0, widthSVG-1]);
+				
+		var xAxis = d3.axisBottom()
+				  .scale(xScale);
+
+
+		var xAxisGroup = svgAxeX.append("g")
+				    .attr("class", "axis")
+				    .attr("transform", "translate(0," +  barPadding + ")")
+				    .call(xAxis);
+
 		
-var xAxis = d3.svg.axis()
-                  .scale(xScale)
-                  .orient("bottom");
 
 
-var xAxisGroup = svgAxeX.append("g")
-		    .attr("class", "axis")
-		    .attr("transform", "translate(0," +  barPadding + ")")
-		    .call(xAxis);
-
-		
-
-		var svg = d3.select("body")
+// CHART
+		var svg = d3.select("#chart")
 			.append("svg")
 			.attr("width", widthSVG)
 			.attr("height", heightSVG);
 
-		var heightScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset, function(d) { return d; })])
+		var heightScale = d3.scaleLinear()
+                     .domain([0, d3.max(dataset, function(d) { return d.count; })])
                      .range([0, heightSVG]);
+
+		var color = d3.scaleLinear().domain([1,dataset.length])
+		      .interpolate(d3.interpolateHcl)
+		      .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
 
 
 		var graph = svg.selectAll("rect")
@@ -52,34 +73,26 @@ var xAxisGroup = svgAxeX.append("g")
 			    .append("rect")
 				.attr("x",function(d, i){return i*(widthSVG/dataset.length);})
 			       	//.attr("y", function(d){return heightBar - d*3;})
-				.attr("y", function(d){return heightBar - heightScale(d);})
+				.attr("y", function(d){return heightBar - heightScale(d.count);})
 				.attr("width", widthBar)
    				.attr("height", heightBar)
-				.attr("fill",function(d){
-					if (d < 10){
-						return "green"; 
-					}
-					if (d >= 10 && d <=20){
-						return "orange"; 
-					}
-					if (d > 20){
-						return "red"; 
-					}		
-				});
+				.attr('fill', function(d) {
+  					return color(d.id);});
+
 
 		svg.selectAll("text")
 			   	.data(dataset)
 			   	.enter()
 				.append("text")
-				.text(function(d){return d;})
+				.text(function(d){return d.label;})
 				.attr("x",function(d, i){return i*(widthSVG/dataset.length ) + widthBar/2;}) 
 				.attr("y", function(d){
-					if((heightBar - d*3) < (heightBar - 12)){
-						return heightBar - heightScale(d) + 12;
+					if((heightBar - d.count*3) < (heightBar - 12)){
+						return heightBar - heightScale(d.count) + 12;
 						
 					}
 					else{
-						return heightBar - heightScale(d) - 2 ;
+						return heightBar - heightScale(d.count) - 2 ;
 					}})
 				.attr("font-family", "sans-serif")
 				.attr("font-size", "11px")
@@ -90,88 +103,25 @@ var xAxisGroup = svgAxeX.append("g")
 
 
 
+// AXIS Y
 
+		var svgAxeY = d3.select("#chart")
+					.append("svg")
+					.attr("width", widthAxeY)
+					.attr("height", heightAxeY);
 
-var svgAxeY = d3.select("body")
-			.append("svg")
-			.attr("width", widthAxeY)
-			.attr("height", heightAxeY);
+		var yScale = d3.scaleLinear()
+				     .domain([0, d3.max(dataset, function(d) { return d.count; })])
+				     .range([ heightSVG,0]);
 
-var yScale = d3.scale.linear()
-                     .domain([0, d3.max(dataset)])
-                     .range([ heightSVG,0]);
+		var yAxis = d3.axisRight()
+				  .scale(yScale)
+				  .ticks(5);
 
-var yAxis = d3.svg.axis()
-                  .scale(yScale)
-                  .orient("right")
-		  .ticks(5);
+		var yAxisGroup = svgAxeY.append("g")
+				    .attr("class", "axis")
+				    .attr("transform", "translate(" +  barPadding + ")",0)
+				    .call(yAxis);
 
-var yAxisGroup = svgAxeY.append("g")
-		    .attr("class", "axis")
-		    .attr("transform", "translate(" +  barPadding + ")",0)
-		    .call(yAxis);
-
-
-
-
-/*
-		d3.select("body").selectAll("div")
-			    .data(dataset)
-			    .enter()
-			    .append("div")
-			    .attr("class", "bar")
-				.style("height", function(d){
-					var barHeight = d * 5;	
-					return barHeight + "px";})
-				.style("background-color", function(d){
-					if (d < 10){
-						return "green"; 
-					}
-					if (d >= 10 && d <=20){
-						return "orange"; 
-					}
-					if (d > 20){
-						return "red"; 
-					}		
-				});
-		*/
-		/*var cicles = svg.selectAll("rect")
-			    .data(dataset)
-			    .enter()
-			    .append("rect")
-				.attr("cx", function(d, i) {
-				    return (i * 50) + 25;
-				})
-			       .attr("cy", height/2)
-			       .attr("r", function(d) {
-				    return d;
-			       })
-				.attr("fill",function(d){
-					if (d < 10){
-						return "green"; 
-					}
-					if (d >= 10 && d <=20){
-						return "orange"; 
-					}
-					if (d > 20){
-						return "red"; 
-					}		
-				});
-		/*d3.select("body")
-			.selectAll("p")
-			.data(dataset)
-			.enter()
-			.append("p")
-			.text(function(d){return d;})
-			.style("color", function(d){
-				if (d < 15){
-					return "green"; 
-				}
-				if (d >= 15 && d <=20){
-					return "orange"; 
-				}
-				if (d > 20){
-					return "red"; 
-				}		
-			});*/
+})(window.d3);
 
